@@ -15,3 +15,9 @@ conda activate fl
 cd dataset
 python generate_Cifar10.py --noniid True --balance True --partition path --num_clients 10 #partition should be pat/dir
 ```
+
+### Run method
+```bash
+cd system
+./scripts/run_fedproto.sh
+```
