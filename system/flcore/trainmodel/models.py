@@ -36,13 +36,13 @@ class BaseHeadSplit(nn.Module):
             self.head = eval(args.heads[cid % len(args.heads)])
         elif 'vit' in args.models[cid % len(args.models)]:
             self.head = nn.Sequential(
-                nn.Linear(args.feature_dim, 768), 
+                nn.Linear(args.feature_dim, 768),
                 nn.Tanh(),
                 nn.Linear(768, args.num_classes)
             )
         else:
             self.head = nn.Linear(args.feature_dim, args.num_classes)
-        
+
     def forward(self, x):
         out = self.base(x)
         out = self.head(out)
@@ -67,7 +67,7 @@ class Head(nn.Module):
 ###########################################################
 
 class CNN(nn.Module):
-    def __init__(self, in_features=1, num_classes=10, height=28, 
+    def __init__(self, in_features=1, num_classes=10, height=28,
                  num_cov=2, feature_dim=512, hidden_dims=[]):
         super().__init__()
         convs = [nn.Sequential(
@@ -77,7 +77,7 @@ class CNN(nn.Module):
                         padding=0,
                         stride=1,
                         bias=True),
-                    nn.ReLU(inplace=True), 
+                    nn.ReLU(inplace=True),
                     nn.MaxPool2d(kernel_size=(2, 2))
                 )]
         height = int(height - 5 + 1)
@@ -91,13 +91,13 @@ class CNN(nn.Module):
                                 padding=0,
                                 stride=1,
                                 bias=True),
-                            nn.ReLU(inplace=True), 
+                            nn.ReLU(inplace=True),
                             nn.MaxPool2d(kernel_size=(2, 2))
                         ))
             height = int(height - 5 + 1)
             height = int((height - 2) / 2 + 1)
         self.conv = nn.Sequential(*convs)
-        
+
         hidden_dims.append(feature_dim)
 
         layers = [nn.Flatten()]
@@ -134,9 +134,9 @@ class HARCNN(nn.Module):
         )
         self.fc = nn.Sequential(
             nn.Linear(dim_hidden, 1024),
-            nn.ReLU(), 
+            nn.ReLU(),
             nn.Linear(1024, 512),
-            nn.ReLU(), 
+            nn.ReLU(),
             nn.Linear(512, num_classes)
         )
 
@@ -183,7 +183,7 @@ class Digit5CNN(nn.Module):
         feature = self.linear(feature)
         out = self.fc(feature)
         return out
-        
+
 
 # https://github.com/FengHZ/KD3A/blob/master/model/amazon.py
 class AmazonMLP(nn.Module):
@@ -212,7 +212,7 @@ class AmazonMLP(nn.Module):
         out = self.encoder(x)
         out = self.fc(out)
         return out
-        
+
 
 # # https://github.com/katsura-jp/fedavg.pytorch/blob/master/src/models/cnn.py
 # class FedAvgCNN(nn.Module):
@@ -256,7 +256,7 @@ class FedAvgCNN(nn.Module):
                         padding=0,
                         stride=1,
                         bias=True),
-            nn.ReLU(inplace=True), 
+            nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=(2, 2))
         )
         self.conv2 = nn.Sequential(
@@ -266,11 +266,11 @@ class FedAvgCNN(nn.Module):
                         padding=0,
                         stride=1,
                         bias=True),
-            nn.ReLU(inplace=True), 
+            nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=(2, 2))
         )
         self.fc1 = nn.Sequential(
-            nn.Linear(dim, 512), 
+            nn.Linear(dim, 512),
             nn.ReLU(inplace=True)
         )
         self.fc = nn.Linear(512, num_classes)
@@ -434,7 +434,7 @@ class LeNet(nn.Module):
 #         #                     ['conv2.weight', 'conv2.bias'],
 #         #                     ['conv1.weight', 'conv1.bias'],
 #         #                     ]
-                            
+
 #     def forward(self, x):
 #         x = self.pool(F.relu(self.conv1(x)))
 #         x = self.pool(F.relu(self.conv2(x)))
@@ -448,26 +448,26 @@ class LeNet(nn.Module):
 # ====================================================================================================================
 
 class LSTMNet(nn.Module):
-    def __init__(self, hidden_dim, num_layers=2, bidirectional=False, dropout=0.2, 
+    def __init__(self, hidden_dim, num_layers=2, bidirectional=False, dropout=0.2,
                 padding_idx=0, vocab_size=98635, num_classes=10):
         super().__init__()
 
         self.dropout = nn.Dropout(dropout)
         self.embedding = nn.Embedding(vocab_size, hidden_dim, padding_idx)
-        self.lstm = nn.LSTM(input_size=hidden_dim, 
-                            hidden_size=hidden_dim, 
-                            num_layers=num_layers, 
-                            bidirectional=bidirectional, 
-                            dropout=dropout, 
+        self.lstm = nn.LSTM(input_size=hidden_dim,
+                            hidden_size=hidden_dim,
+                            num_layers=num_layers,
+                            bidirectional=bidirectional,
+                            dropout=dropout,
                             batch_first=True)
         dims = hidden_dim*2 if bidirectional else hidden_dim
         self.fc = nn.Linear(dims, num_classes)
 
     def forward(self, x):
         text, text_lengths = x
-        
+
         embedded = self.embedding(text)
-        
+
         #pack sequence
         packed_embedded = nn.utils.rnn.pack_padded_sequence(embedded, text_lengths, batch_first=True, enforce_sorted=False)
         packed_output, (hidden, cell) = self.lstm(packed_embedded)
@@ -479,7 +479,7 @@ class LSTMNet(nn.Module):
         out = self.dropout(out)
         out = self.fc(out)
         out = F.log_softmax(out, dim=1)
-            
+
         return out
 
 # ====================================================================================================================
@@ -487,16 +487,16 @@ class LSTMNet(nn.Module):
 class fastText(nn.Module):
     def __init__(self, hidden_dim, padding_idx=0, vocab_size=98635, num_classes=10):
         super(fastText, self).__init__()
-        
+
         # Embedding Layer
         self.embedding = nn.Embedding(vocab_size, hidden_dim, padding_idx)
-        
+
         # Hidden Layer
         self.fc1 = nn.Linear(hidden_dim, hidden_dim)
-        
+
         # Output Layer
         self.fc = nn.Linear(hidden_dim, num_classes)
-        
+
     def forward(self, x):
         text, text_lengths = x
 
@@ -510,13 +510,13 @@ class fastText(nn.Module):
 # ====================================================================================================================
 
 class TextCNN(nn.Module):
-    def __init__(self, hidden_dim, num_channels=100, kernel_size=[3,4,5], max_len=200, dropout=0.8, 
+    def __init__(self, hidden_dim, num_channels=100, kernel_size=[3,4,5], max_len=200, dropout=0.8,
                 padding_idx=0, vocab_size=98635, num_classes=10):
         super(TextCNN, self).__init__()
-        
+
         # Embedding Layer
         self.embedding = nn.Embedding(vocab_size, hidden_dim, padding_idx)
-        
+
         # This stackoverflow thread clarifies how conv1d works
         # https://stackoverflow.com/questions/46503816/keras-conv1d-layer-parameters-filters-and-kernel-size/46504997
         self.conv1 = nn.Sequential(
@@ -534,22 +534,22 @@ class TextCNN(nn.Module):
             nn.ReLU(),
             nn.MaxPool1d(max_len - kernel_size[2]+1)
         )
-        
+
         self.dropout = nn.Dropout(dropout)
-        
+
         # Fully-Connected Layer
         self.fc1 = nn.Linear(num_channels*len(kernel_size), hidden_dim)
         self.fc = nn.Linear(hidden_dim, num_classes)
-        
+
     def forward(self, x):
         text, text_lengths = x
 
         embedded_sent = self.embedding(text).permute(0,2,1)
-        
+
         conv_out1 = self.conv1(embedded_sent).squeeze(2)
         conv_out2 = self.conv2(embedded_sent).squeeze(2)
         conv_out3 = self.conv3(embedded_sent).squeeze(2)
-        
+
         all_out = torch.cat((conv_out1, conv_out2, conv_out3), 1)
         final_feature_map = self.dropout(all_out)
         feat = self.fc1(final_feature_map)
@@ -565,7 +565,7 @@ class TextCNN(nn.Module):
 #   @staticmethod
 #   def forward(ctx, input):
 #     return input
-  
+
 #   @staticmethod
 #   def backward(ctx, grad_output):
 #     return grad_output
