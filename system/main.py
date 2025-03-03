@@ -19,6 +19,7 @@ from flcore.servers.servertgp import FedTGP
 from flcore.servers.serverktl_stylegan_xl import FedKTL as FedKTL_stylegan_xl
 from flcore.servers.serverktl_stylegan_3 import FedKTL as FedKTL_stylegan_3
 from flcore.servers.serverktl_stable_diffusion import FedKTL as FedKTL_stable_diffusion
+from flcore.servers.serverpfedmoe import pFedMoE
 
 from utils.result_utils import average_data
 from utils.mem_utils import MemReporter
@@ -42,97 +43,97 @@ def run(args):
         # Generate args.models
         if args.model_family == "HtFE2":
             args.models = [
-                'FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=1600)', 
-                'torchvision.models.resnet18(pretrained=False, num_classes=args.num_classes)', 
+                'FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=1600)',
+                'torchvision.models.resnet18(pretrained=False, num_classes=args.num_classes)',
             ]
 
         elif args.model_family == "HtFE3":
             args.models = [
-                'resnet10(num_classes=args.num_classes)', 
-                'torchvision.models.resnet18(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.resnet34(pretrained=False, num_classes=args.num_classes)', 
+                'resnet10(num_classes=args.num_classes)',
+                'torchvision.models.resnet18(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.resnet34(pretrained=False, num_classes=args.num_classes)',
             ]
 
         elif args.model_family == "HtFE4":
             args.models = [
-                'FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=1600)', 
-                'torchvision.models.googlenet(pretrained=False, aux_logits=False, num_classes=args.num_classes)', 
-                'mobilenet_v2(pretrained=False, num_classes=args.num_classes)', 
+                'FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=1600)',
+                'torchvision.models.googlenet(pretrained=False, aux_logits=False, num_classes=args.num_classes)',
+                'mobilenet_v2(pretrained=False, num_classes=args.num_classes)',
                 'torchvision.models.resnet18(pretrained=False, num_classes=args.num_classes)'
             ]
 
         elif args.model_family == "HtFE8":
             args.models = [
-                'FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=1600)', 
-                # 'FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=10816)', 
-                'torchvision.models.googlenet(pretrained=False, aux_logits=False, num_classes=args.num_classes)', 
-                'mobilenet_v2(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.resnet18(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.resnet34(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.resnet50(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.resnet101(pretrained=False, num_classes=args.num_classes)', 
+                'FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=1600)',
+                # 'FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=10816)',
+                'torchvision.models.googlenet(pretrained=False, aux_logits=False, num_classes=args.num_classes)',
+                'mobilenet_v2(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.resnet18(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.resnet34(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.resnet50(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.resnet101(pretrained=False, num_classes=args.num_classes)',
                 'torchvision.models.resnet152(pretrained=False, num_classes=args.num_classes)'
             ]
 
         elif args.model_family == "HtFE9":
             args.models = [
-                'resnet4(num_classes=args.num_classes)', 
-                'resnet6(num_classes=args.num_classes)', 
-                'resnet8(num_classes=args.num_classes)', 
-                'resnet10(num_classes=args.num_classes)', 
-                'torchvision.models.resnet18(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.resnet34(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.resnet50(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.resnet101(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.resnet152(pretrained=False, num_classes=args.num_classes)', 
+                'resnet4(num_classes=args.num_classes)',
+                'resnet6(num_classes=args.num_classes)',
+                'resnet8(num_classes=args.num_classes)',
+                'resnet10(num_classes=args.num_classes)',
+                'torchvision.models.resnet18(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.resnet34(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.resnet50(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.resnet101(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.resnet152(pretrained=False, num_classes=args.num_classes)',
             ]
 
         elif args.model_family == "HtFE8-HtC4":
             args.models = [
-                'FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=1600)', 
-                'torchvision.models.googlenet(pretrained=False, aux_logits=False, num_classes=args.num_classes)', 
-                'mobilenet_v2(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.resnet18(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.resnet34(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.resnet50(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.resnet101(pretrained=False, num_classes=args.num_classes)', 
+                'FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=1600)',
+                'torchvision.models.googlenet(pretrained=False, aux_logits=False, num_classes=args.num_classes)',
+                'mobilenet_v2(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.resnet18(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.resnet34(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.resnet50(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.resnet101(pretrained=False, num_classes=args.num_classes)',
                 'torchvision.models.resnet152(pretrained=False, num_classes=args.num_classes)'
             ]
             args.global_model = 'FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=1600)'
             args.heads = [
-                'Head(hidden_dims=[512], num_classes=args.num_classes)', 
-                'Head(hidden_dims=[512, 512], num_classes=args.num_classes)', 
-                'Head(hidden_dims=[512, 256], num_classes=args.num_classes)', 
-                'Head(hidden_dims=[512, 128], num_classes=args.num_classes)', 
+                'Head(hidden_dims=[512], num_classes=args.num_classes)',
+                'Head(hidden_dims=[512, 512], num_classes=args.num_classes)',
+                'Head(hidden_dims=[512, 256], num_classes=args.num_classes)',
+                'Head(hidden_dims=[512, 128], num_classes=args.num_classes)',
             ]
 
         elif args.model_family == "Res34-HtC4":
             args.models = [
-                'torchvision.models.resnet34(pretrained=False, num_classes=args.num_classes)', 
+                'torchvision.models.resnet34(pretrained=False, num_classes=args.num_classes)',
             ]
             args.global_model = 'FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=1600)'
             args.heads = [
-                'Head(hidden_dims=[512], num_classes=args.num_classes)', 
-                'Head(hidden_dims=[512, 512], num_classes=args.num_classes)', 
-                'Head(hidden_dims=[512, 256], num_classes=args.num_classes)', 
-                'Head(hidden_dims=[512, 128], num_classes=args.num_classes)', 
+                'Head(hidden_dims=[512], num_classes=args.num_classes)',
+                'Head(hidden_dims=[512, 512], num_classes=args.num_classes)',
+                'Head(hidden_dims=[512, 256], num_classes=args.num_classes)',
+                'Head(hidden_dims=[512, 128], num_classes=args.num_classes)',
             ]
 
         elif args.model_family == "HCNNs8":
             args.models = [
-                'CNN(num_cov=1, hidden_dims=[], in_features=1, num_classes=args.num_classes)', 
-                'CNN(num_cov=2, hidden_dims=[], in_features=1, num_classes=args.num_classes)', 
-                'CNN(num_cov=1, hidden_dims=[512], in_features=1, num_classes=args.num_classes)', 
-                'CNN(num_cov=2, hidden_dims=[512], in_features=1, num_classes=args.num_classes)', 
-                'CNN(num_cov=1, hidden_dims=[1024], in_features=1, num_classes=args.num_classes)', 
-                'CNN(num_cov=2, hidden_dims=[1024], in_features=1, num_classes=args.num_classes)', 
-                'CNN(num_cov=1, hidden_dims=[1024, 512], in_features=1, num_classes=args.num_classes)', 
-                'CNN(num_cov=2, hidden_dims=[1024, 512], in_features=1, num_classes=args.num_classes)', 
+                'CNN(num_cov=1, hidden_dims=[], in_features=1, num_classes=args.num_classes)',
+                'CNN(num_cov=2, hidden_dims=[], in_features=1, num_classes=args.num_classes)',
+                'CNN(num_cov=1, hidden_dims=[512], in_features=1, num_classes=args.num_classes)',
+                'CNN(num_cov=2, hidden_dims=[512], in_features=1, num_classes=args.num_classes)',
+                'CNN(num_cov=1, hidden_dims=[1024], in_features=1, num_classes=args.num_classes)',
+                'CNN(num_cov=2, hidden_dims=[1024], in_features=1, num_classes=args.num_classes)',
+                'CNN(num_cov=1, hidden_dims=[1024, 512], in_features=1, num_classes=args.num_classes)',
+                'CNN(num_cov=2, hidden_dims=[1024, 512], in_features=1, num_classes=args.num_classes)',
             ]
 
         elif args.model_family == "ViTs":
             args.models = [
-                'torchvision.models.vit_b_16(image_size=32, num_classes=args.num_classes)', 
+                'torchvision.models.vit_b_16(image_size=32, num_classes=args.num_classes)',
                 'torchvision.models.vit_b_32(image_size=32, num_classes=args.num_classes)',
                 'torchvision.models.vit_l_16(image_size=32, num_classes=args.num_classes)',
                 'torchvision.models.vit_l_32(image_size=32, num_classes=args.num_classes)',
@@ -140,24 +141,24 @@ def run(args):
 
         elif args.model_family == "HtM10":
             args.models = [
-                'FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=1600)', 
-                'torchvision.models.googlenet(pretrained=False, aux_logits=False, num_classes=args.num_classes)', 
-                'mobilenet_v2(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.resnet18(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.resnet34(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.resnet50(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.resnet101(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.resnet152(pretrained=False, num_classes=args.num_classes)', 
-                'torchvision.models.vit_b_16(image_size=32, num_classes=args.num_classes)', 
+                'FedAvgCNN(in_features=3, num_classes=args.num_classes, dim=1600)',
+                'torchvision.models.googlenet(pretrained=False, aux_logits=False, num_classes=args.num_classes)',
+                'mobilenet_v2(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.resnet18(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.resnet34(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.resnet50(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.resnet101(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.resnet152(pretrained=False, num_classes=args.num_classes)',
+                'torchvision.models.vit_b_16(image_size=32, num_classes=args.num_classes)',
                 'torchvision.models.vit_b_32(image_size=32, num_classes=args.num_classes)'
             ]
 
         elif args.model_family == "NLP_all":
             args.models = [
-                'fastText(hidden_dim=args.feature_dim, vocab_size=args.vocab_size, num_classes=args.num_classes)', 
-                'LSTMNet(hidden_dim=args.feature_dim, vocab_size=args.vocab_size, num_classes=args.num_classes)', 
-                'BiLSTM_TextClassification(input_size=args.vocab_size, hidden_size=args.feature_dim, output_size=args.num_classes, num_layers=1, embedding_dropout=0, lstm_dropout=0, attention_dropout=0, embedding_length=args.feature_dim)', 
-                'TextCNN(hidden_dim=args.feature_dim, max_len=args.max_len, vocab_size=args.vocab_size, num_classes=args.num_classes)', 
+                'fastText(hidden_dim=args.feature_dim, vocab_size=args.vocab_size, num_classes=args.num_classes)',
+                'LSTMNet(hidden_dim=args.feature_dim, vocab_size=args.vocab_size, num_classes=args.num_classes)',
+                'BiLSTM_TextClassification(input_size=args.vocab_size, hidden_size=args.feature_dim, output_size=args.num_classes, num_layers=1, embedding_dropout=0, lstm_dropout=0, attention_dropout=0, embedding_length=args.feature_dim)',
+                'TextCNN(hidden_dim=args.feature_dim, max_len=args.max_len, vocab_size=args.vocab_size, num_classes=args.num_classes)',
                 'TransformerModel(ntoken=args.vocab_size, d_model=args.feature_dim, nhead=8, nlayers=2, num_classes=args.num_classes, max_len=args.max_len)'
             ]
 
@@ -190,29 +191,44 @@ def run(args):
 
         elif args.model_family == "MLPs":
             args.models = [
-                'AmazonMLP(feature_dim=[])', 
-                'AmazonMLP(feature_dim=[200])', 
-                'AmazonMLP(feature_dim=[500])', 
-                'AmazonMLP(feature_dim=[1000, 500])', 
-                'AmazonMLP(feature_dim=[1000, 500, 200])', 
+                'AmazonMLP(feature_dim=[])',
+                'AmazonMLP(feature_dim=[200])',
+                'AmazonMLP(feature_dim=[500])',
+                'AmazonMLP(feature_dim=[1000, 500])',
+                'AmazonMLP(feature_dim=[1000, 500, 200])',
             ]
 
         elif args.model_family == "MLP_1layer":
             args.models = [
-                'AmazonMLP(feature_dim=[200])', 
-                'AmazonMLP(feature_dim=[500])', 
+                'AmazonMLP(feature_dim=[200])',
+                'AmazonMLP(feature_dim=[500])',
             ]
 
         elif args.model_family == "MLP_layers":
             args.models = [
-                'AmazonMLP(feature_dim=[500])', 
-                'AmazonMLP(feature_dim=[1000, 500])', 
-                'AmazonMLP(feature_dim=[1000, 500, 200])', 
+                'AmazonMLP(feature_dim=[500])',
+                'AmazonMLP(feature_dim=[1000, 500])',
+                'AmazonMLP(feature_dim=[1000, 500, 200])',
             ]
+
+        elif args.model_family == "CNN_1":
+            args.models = [
+                'pFMCNN_1(inchannels=3, num_classes=args.num_classes, dim=800)',
+            ]
+
+        elif args.model_family == 'CNNs':
+            args.models = [
+                'pFMCNN_1(inchannels=3, num_classes=args.num_classes, dim=800)',
+                'pFMCNN_2(inchannels=3, num_classes=args.num_classes, dim=400)',
+                'pFMCNN_3(inchannels=3, num_classes=args.num_classes, dim=800)',
+                'pFMCNN_4(inchannels=3, num_classes=args.num_classes, dim=800)',
+                'pFMCNN_5(inchannels=3, num_classes=args.num_classes, dim=800)',
+            ]
+
 
         else:
             raise NotImplementedError
-            
+
         for model in args.models:
             print(model)
 
@@ -243,7 +259,7 @@ def run(args):
 
         elif args.algorithm == "FedTGP":
             server = FedTGP(args, i)
-            
+
         elif args.algorithm == "FedKTL-stylegan-xl":
             server = FedKTL_stylegan_xl(args, i)
 
@@ -252,7 +268,9 @@ def run(args):
 
         elif args.algorithm == "FedKTL-stable-diffusion":
             server = FedKTL_stable_diffusion(args, i)
-            
+
+        elif args.algorithm == "pFedMoE":
+            server = pFedMoE(args, i)
         else:
             raise NotImplementedError
 
@@ -261,7 +279,7 @@ def run(args):
         time_list.append(time.time()-start)
 
     print(f"\nAverage time cost: {round(np.average(time_list), 2)}s.")
-    
+
 
     # Global average
     average_data(dataset=args.dataset, algorithm=args.algorithm, goal=args.goal, times=args.times)
@@ -276,7 +294,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     # general
-    parser.add_argument('-go', "--goal", type=str, default="test", 
+    parser.add_argument('-go', "--goal", type=str, default="test",
                         help="The goal for this experiment")
     parser.add_argument('-dev', "--device", type=str, default="cuda",
                         choices=["cpu", "cuda"])
@@ -290,7 +308,7 @@ if __name__ == "__main__":
     parser.add_argument('-ld', "--learning_rate_decay", type=bool, default=False)
     parser.add_argument('-ldg', "--learning_rate_decay_gamma", type=float, default=0.99)
     parser.add_argument('-gr', "--global_rounds", type=int, default=2000)
-    parser.add_argument('-ls', "--local_epochs", type=int, default=1, 
+    parser.add_argument('-ls', "--local_epochs", type=int, default=1,
                         help="Multiple update steps in one local epoch.")
     parser.add_argument('-algo', "--algorithm", type=str, default="FedAvg")
     parser.add_argument('-jr', "--join_ratio", type=float, default=1.0,
@@ -347,6 +365,11 @@ if __name__ == "__main__":
                         help="Not related to the performance. A small value saves GPU memory.")
     parser.add_argument('-mu', "--mu", type=float, default=50.0)
 
+    # pFedMoE
+    parser.add_argument("--global_expert_model", type=str, default="CNN_5")
+
+
+
 
     args = parser.parse_args()
 
@@ -394,12 +417,12 @@ if __name__ == "__main__":
     #     activities=[
     #         torch.profiler.ProfilerActivity.CPU,
     #         torch.profiler.ProfilerActivity.CUDA],
-    #     profile_memory=True, 
+    #     profile_memory=True,
     #     on_trace_ready=torch.profiler.tensorboard_trace_handler('./log')
     #     ) as prof:
     # with torch.autograd.profiler.profile(profile_memory=True) as prof:
     run(args)
 
-    
+
     # print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=20))
     # print(f"\nTotal time cost: {round(time.time()-total_start, 2)}s.")

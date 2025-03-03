@@ -8,7 +8,7 @@ from flcore.trainmodel.resnet import *
 from flcore.trainmodel.alexnet import *
 from flcore.trainmodel.mobilenet_v2 import *
 from flcore.trainmodel.transformer import *
-
+from flcore.trainmodel.pFMcnn import *
 
 # split an original model into a base and a head
 class BaseHeadSplit(nn.Module):

@@ -64,11 +64,11 @@ class Server(object):
         for i, train_slow, send_slow in zip(range(self.num_clients), self.train_slow_clients, self.send_slow_clients):
             train_data = read_client_data(self.dataset, i, is_train=True)
             test_data = read_client_data(self.dataset, i, is_train=False)
-            client = clientObj(self.args, 
-                            id=i, 
-                            train_samples=len(train_data), 
-                            test_samples=len(test_data), 
-                            train_slow=train_slow, 
+            client = clientObj(self.args,
+                            id=i,
+                            train_samples=len(train_data),
+                            test_samples=len(test_data),
+                            train_slow=train_slow,
                             send_slow=send_slow)
             self.clients.append(client)
 
@@ -102,7 +102,7 @@ class Server(object):
 
         for client in self.clients:
             start_time = time.time()
-            
+
             client.set_parameters()
 
             client.send_time_cost['num_rounds'] += 1
@@ -131,7 +131,7 @@ class Server(object):
         global_model = load_item(client.role, 'model', client.save_folder_name)
         for param in global_model.parameters():
             param.data.zero_()
-            
+
         for w, cid in zip(self.uploaded_weights, self.uploaded_ids):
             client = self.clients[cid]
             client_model = load_item(client.role, 'model', client.save_folder_name)
@@ -139,7 +139,7 @@ class Server(object):
                 server_param.data += client_param.data.clone() * w
 
         save_item(global_model, self.role, 'global_model', self.save_folder_name)
-        
+
     def save_results(self):
         algo = self.dataset + "_" + self.algorithm
         result_path = "../results/"
@@ -155,7 +155,7 @@ class Server(object):
                 hf.create_dataset('rs_test_acc', data=self.rs_test_acc)
                 hf.create_dataset('rs_test_auc', data=self.rs_test_auc)
                 hf.create_dataset('rs_train_loss', data=self.rs_train_loss)
-        
+
         if 'temp' in self.save_folder_name:
             try:
                 shutil.rmtree(self.save_folder_name)
@@ -163,7 +163,7 @@ class Server(object):
             except:
                 print('Already deleted.')
 
-    def test_metrics(self):        
+    def test_metrics(self):
         num_samples = []
         tot_correct = []
         tot_auc = []
@@ -178,7 +178,7 @@ class Server(object):
 
         return ids, num_samples, tot_correct, tot_auc
 
-    def train_metrics(self):        
+    def train_metrics(self):
         num_samples = []
         losses = []
         for c in self.clients:
@@ -201,12 +201,12 @@ class Server(object):
         # train_loss = sum(stats_train[2])*1.0 / sum(stats_train[1])
         accs = [a / n for a, n in zip(stats[2], stats[1])]
         aucs = [a / n for a, n in zip(stats[3], stats[1])]
-        
+
         if acc == None:
             self.rs_test_acc.append(test_acc)
         else:
             acc.append(test_acc)
-        
+
         # if loss == None:
         #     self.rs_train_loss.append(train_loss)
         # else:
@@ -248,3 +248,11 @@ class Server(object):
             else:
                 raise NotImplementedError
         return True
+
+
+    #for pFedMoE
+    def send_share_expert(self, global_expert_model):
+        for client in self.clients:
+            client.global_expert_model = copy.deepcopy(global_expert_model)
+            client.global_expert_model.to(client.device)
+        
