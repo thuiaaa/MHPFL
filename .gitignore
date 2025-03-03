@@ -12,5 +12,8 @@ __pycache__/
 dataset/Cifar10/
 dataset/Cifar100/
 
+system/temp/
+
 #ignore log files
 *.log
+*.out
