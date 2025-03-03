@@ -1,0 +1,16 @@
+# ignore Python files
+__pycache__/
+*.pyc
+*.pyo
+
+# ignore ide
+.vscode/
+.idea/
+.cursor/
+
+# ignore dataset files
+dataset/Cifar10/
+dataset/Cifar100/
+
+#ignore log files
+*.log
