@@ -213,16 +213,16 @@ def run(args):
 
         elif args.model_family == "CNN_1":
             args.models = [
-                'pFMCNN_1(inchannels=3, num_classes=args.num_classes, dim=800)',
+                'pFMCNN_1(in_channels=3, num_classes=args.num_classes, dim=800)',
             ]
 
         elif args.model_family == 'CNNs':
             args.models = [
-                'pFMCNN_1(inchannels=3, num_classes=args.num_classes, dim=800)',
-                'pFMCNN_2(inchannels=3, num_classes=args.num_classes, dim=400)',
-                'pFMCNN_3(inchannels=3, num_classes=args.num_classes, dim=800)',
-                'pFMCNN_4(inchannels=3, num_classes=args.num_classes, dim=800)',
-                'pFMCNN_5(inchannels=3, num_classes=args.num_classes, dim=800)',
+                'pFMCNN_1(in_channels=3, num_classes=args.num_classes, dim=800)',
+                'pFMCNN_2(in_channels=3, num_classes=args.num_classes, dim=400)',
+                'pFMCNN_3(in_channels=3, num_classes=args.num_classes, dim=800)',
+                'pFMCNN_4(in_channels=3, num_classes=args.num_classes, dim=800)',
+                'pFMCNN_5(in_channels=3, num_classes=args.num_classes, dim=800)',
             ]
 
 

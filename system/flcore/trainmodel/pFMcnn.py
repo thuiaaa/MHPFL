@@ -49,7 +49,7 @@ class pFMCNN_1(nn.Module):
 
     def forward_nohead(self, x):
         out = self.conv1(x)
-        out = self.conv2(x)
+        out = self.conv2(out)
         out = torch.flatten(out, 1)
         out = self.fc1(out)
         out = self.fc2(out)
@@ -95,7 +95,7 @@ class pFMCNN_2(nn.Module):
 
     def forward_nohead(self, x):
         out = self.conv1(x)
-        out = self.conv2(x)
+        out = self.conv2(out)
         out = torch.flatten(out, 1)
         out = self.fc1(out)
         out = self.fc2(out)
@@ -141,7 +141,7 @@ class pFMCNN_3(nn.Module):
 
     def forward_nohead(self, x):
         out = self.conv1(x)
-        out = self.conv2(x)
+        out = self.conv2(out)
         out = torch.flatten(out, 1)
         out = self.fc1(out)
         out = self.fc2(out)
@@ -187,7 +187,7 @@ class pFMCNN_4(nn.Module):
 
     def forward_nohead(self, x):
         out = self.conv1(x)
-        out = self.conv2(x)
+        out = self.conv2(out)
         out = torch.flatten(out, 1)
         out = self.fc1(out)
         out = self.fc2(out)
@@ -233,8 +233,64 @@ class pFMCNN_5(nn.Module):
 
     def forward_nohead(self, x):
         out = self.conv1(x)
-        out = self.conv2(x)
+        out = self.conv2(out)
         out = torch.flatten(out, 1)
         out = self.fc1(out)
         out = self.fc2(out)
         return out
+
+
+# class SwitchNorm(nn.Module):
+#     def __init__(self, norm_type='batch'):
+#         super(SwitchNorm, self).__init__()
+#         self.norm_type = norm_type
+#         if norm_type == 'batch':
+#             self.norm_layer = nn.BatchNorm1d
+#         elif norm_type == 'instance':
+#             self.norm_layer = nn.InstanceNorm1d
+#         else:
+#             self.norm_layer = nn.Identity()
+
+#     def forward(self, x):
+#         if self.norm_type == 'batch':
+#             return self.norm_layer(x)
+#         elif self.norm_layer == 'instance':
+#             return self.norm_layer(x)
+#         else:
+#             return x
+
+
+class pfedmoe_gate(nn.Module):
+    def __init__(self, m=64):  # 假设m=64，可根据需要调整
+        super().__init__()
+        # 输入形状: [batch, 3, 32, 32]
+        self.flatten = nn.Flatten()
+        self.switchnorm = nn.LayerNorm(32*32*3)  # 使用LayerNorm替代，需确认SwitchNorm实现
+        self.fc1 = nn.Linear(32*32*3, m)
+        self.bn1 = nn.BatchNorm1d(m)
+        self.fc2 = nn.Linear(m, 2)
+        self.bn2 = nn.BatchNorm1d(2)
+        self.sigmoid = nn.Sigmoid()
+        self.softmax = nn.Softmax(dim=1)
+
+    def forward(self, x):
+        # 输入形状: [batch, 3, 32, 32]
+        x = self.flatten(x)       # -> [batch, 3072]
+        x = self.switchnorm(x)
+        x = self.fc1(x)          # -> [batch, m]
+        x = self.bn1(x)
+        x = self.sigmoid(x)      # -> [batch, m]
+        x = self.fc2(x)          # -> [batch, 2]
+        x = self.bn2(x)
+        x = self.softmax(x)      # -> [batch, 2]
+        return x
+
+
+class pfedmoe_head(nn.Module):
+    def __init__(self, input_dim=500, output_dim=10):
+        super().__init__()
+        self.head = nn.Linear(input_dim, output_dim)
+
+    def forward(self, x):
+        return self.head(x)
+

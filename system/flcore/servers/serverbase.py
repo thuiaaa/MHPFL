@@ -253,6 +253,49 @@ class Server(object):
     #for pFedMoE
     def send_share_expert(self, global_expert_model):
         for client in self.clients:
+            start_time = time.time()
+
             client.global_expert_model = copy.deepcopy(global_expert_model)
             client.global_expert_model.to(client.device)
-        
+
+            client.send_time_cost['num_rounds'] += 1
+            client.send_time_cost['total_cost'] += 2 * (time.time() - start_time)
+
+    def receive_global_models(self):
+        assert (len(self.selected_clients) > 0)
+
+        active_clients = random.sample(
+            self.selected_clients, int((1-self.client_drop_rate) * self.current_num_join_clients))
+
+        self.uploaded_ids = []
+        self.uploaded_weights = []
+        self.uploaded_models = []
+        tot_samples = 0
+        for client in active_clients:
+            try:
+                client_time_cost = client.train_time_cost['total_cost'] / client.train_time_cost['num_rounds'] + \
+                        client.send_time_cost['total_cost'] / client.send_time_cost['num_rounds']
+            except ZeroDivisionError:
+                client_time_cost = 0
+            if client_time_cost <= self.time_threthold:
+                tot_samples += client.train_samples
+                self.uploaded_ids.append(client.id)
+                self.uploaded_weights.append(client.train_samples)
+                self.uploaded_models.append(client.global_expert_model)
+        for i, w in enumerate(self.uploaded_weights):
+            self.uploaded_weights[i] = w / tot_samples
+
+    def aggregate_parameters_origin(self):
+        assert (len(self.uploaded_models) > 0)
+
+        self.global_expert_model = copy.deepcopy(self.uploaded_models[0])
+        for param in self.global_expert_model.parameters():
+            param.data.zero_()
+
+        for w, client_model in zip(self.uploaded_weights, self.uploaded_models):
+            self.add_parameters(w, client_model)
+
+    def add_parameters(self, w, client_model):
+        for server_param, client_param in zip(self.global_expert_model.parameters(), client_model.parameters()):
+            server_param.data += client_param.data.clone() * w
+
