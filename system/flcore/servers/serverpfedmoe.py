@@ -38,7 +38,7 @@ class pFedMoE(Server):
             s_t = time.time()
 
             self.selected_clients = self.select_clients()
-            self.send_share_expert(self.global_expert_model)
+            self.send_share_expert(self.global_expert_model)                   #把共享专家发下去
 
             if i%self.eval_gap == 0:
                 print(f"\n-------------Round number: {i}-------------")
@@ -53,6 +53,9 @@ class pFedMoE(Server):
             # if self.dlg_eval and i%self.dlg_gap == 0:
             #     self.call_dlg(i)
             self.aggregate_parameters_origin()
+
+            self.Budget.append(time.time() - s_t)
+            print('-'*25, 'time cost', '-'*25, self.Budget[-1])
 
             if self.auto_break and self.check_done(acc_lss=[self.rs_test_acc], top_cnt=self.top_cnt):
                 break
