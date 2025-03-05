@@ -75,7 +75,7 @@ class Client(object):
         test_num = 0
         y_prob = []
         y_true = []
-        
+
         with torch.no_grad():
             for x, y in testloaderfull:
                 if type(x) == type([]):
@@ -101,8 +101,9 @@ class Client(object):
         y_true = np.concatenate(y_true, axis=0)
 
         auc = metrics.roc_auc_score(y_true, y_prob, average='micro')
-        
+
         return test_acc, test_num, auc
+
 
     def train_metrics(self):
         trainloader = self.load_train_data()

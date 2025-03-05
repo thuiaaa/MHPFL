@@ -1,1 +1,1 @@
-nohup python -u main.py -t 3 -ab 1 -lr 0.01 -jr 1 -lbs 128 -ls 1 -nc 10 -nb 100 -data Cifar10 -m HtM10 -fd 512 -did 0 -algo FedProto -lam 10 > ../log/total-Cifar100-HtM10-fd=512-FedProto.out 2>&1 &
+nohup python -u main.py -t 3 -ab 1 -lr 0.01 -jr 1 -lbs 128 -ls 1 -nc 10 -nb 100 -data Cifar10 -m CNN_1 -fd 512 -did 0 -algo FedProto -lam 10 > ../logs/total-Cifar100-HtM10-fd=512-FedProto.out 2>&1 &
