@@ -59,6 +59,8 @@ class Server(object):
         self.train_slow_rate = args.train_slow_rate
         self.send_slow_rate = args.send_slow_rate
 
+        self.avg_acc = []
+
 
     def set_clients(self, clientObj):
         for i, train_slow, send_slow in zip(range(self.num_clients), self.train_slow_clients, self.send_slow_clients):
@@ -211,6 +213,9 @@ class Server(object):
         #     self.rs_train_loss.append(train_loss)
         # else:
         #     loss.append(train_loss)
+
+        # record training loss
+        self.avg_acc.append(test_acc)
 
         # print("Averaged Train Loss: {:.4f}".format(train_loss))
         print("Averaged Test Accurancy: {:.4f}".format(test_acc))
