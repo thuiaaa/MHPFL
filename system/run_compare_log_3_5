@@ -1,0 +1,2 @@
+nohup: ignoring input
+./scripts/run_compare_method.sh: 8: Syntax error: Bad fd number

@@ -20,6 +20,7 @@ from flcore.servers.serverktl_stylegan_xl import FedKTL as FedKTL_stylegan_xl
 from flcore.servers.serverktl_stylegan_3 import FedKTL as FedKTL_stylegan_3
 from flcore.servers.serverktl_stable_diffusion import FedKTL as FedKTL_stable_diffusion
 from flcore.servers.serverpfedmoe import pFedMoE
+from flcore.servers.serverfedmoekd import FedMoEKD
 
 from utils.result_utils import average_data
 from utils.mem_utils import MemReporter
@@ -271,12 +272,22 @@ def run(args):
 
         elif args.algorithm == "pFedMoE":
             server = pFedMoE(args, i)
+
+        elif args.algorithm == "FedMoEKD":
+            server = FedMoEKD(args, i)
+
         else:
             raise NotImplementedError
 
         server.train()
 
         time_list.append(time.time()-start)
+
+        if hasattr(server, 'avg_acc'):
+            save_path = f"results/{args.dataset}_{args.algorithm}_{args.model_family}_{args.num_clients}_{args.local_epochs}_acc.npy"
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            np.save(save_path, np.array(server.avg_acc))
+            print(f"Accuracy saved to {save_path}")
 
     print(f"\nAverage time cost: {round(np.average(time_list), 2)}s.")
 
