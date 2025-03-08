@@ -278,7 +278,7 @@ def run(args):
 
         else:
             raise NotImplementedError
-
+        
         server.train()
 
         time_list.append(time.time()-start)

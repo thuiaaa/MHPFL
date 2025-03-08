@@ -20,8 +20,9 @@ class clientfedmoekd(Client):
 
         self.global_expert_model = pFMCNN_5().to(self.device)
         self.local_expert_model = eval(args.models[self.id % len(args.models)]).to(self.device)
+        print(self.global_expert_model, self.local_expert_model)
         self.gate = pfedmoe_gate(m=128).to(self.device)
-        self.head = pfedmoe_head().to(self.device)
+        self.head = pfedmoe_head(output_dim=args.num_classes).to(self.device)
 
         #本地两个专家分开训练
         self.optimizer_global_expert = torch.optim.SGD(

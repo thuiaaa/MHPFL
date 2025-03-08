@@ -1,0 +1,5 @@
+nohup python -u main.py -t 1 -ab 1 -lr 0.01 -jr 1 -lbs 128 -ls 1 -nc 10 -nb 10 -data Cifar10 -m CNN_1 -fd 512 -did 5 -algo FML -al 0.5 -bt 0.5 > ../logs/total-Cifar10-CNN_1-fd=512-FML.out 2>&1
+nohup python -u main.py -t 1 -ab 1 -lr 0.01 -jr 1 -lbs 128 -ls 1 -nc 10 -nb 10 -data Cifar10 -m CNN_1 -fd 512 -did 5 -algo FedKD -mlr 0.01 -Ts 0.95 -Te 0.98 > ../logs/total-Cifar10-CNN_1-fd=512-FedKD.out 2>&1
+nohup python -u main.py -t 1 -ab 1 -lr 0.01 -jr 1 -lbs 128 -ls 1 -nc 10 -nb 10 -data Cifar10 -m CNN_1 -fd 512 -did 5 -algo LG-FedAvg > ../logs/total-Cifar10-CNN_1-fd=512-LG-FedAvg.out 2>&1
+nohup python -u main.py -t 1 -ab 1 -lr 0.01 -jr 1 -lbs 128 -ls 1 -nc 10 -nb 10 -data Cifar10 -m CNN_1 -fd 512 -did 5 -algo FedGH -slr 0.01 -se 1 > ../logs/total-Cifar10-CNN_1-fd=512-FedGH.out 2>&1
+nohup python -u main.py -t 1 -ab 1 -lr 0.01 -jr 1 -lbs 128 -ls 1 -nc 10 -nb 10 -data Cifar10 -m CNN_1 -fd 512 -did 5 -algo FedTGP -lam 10 -se 100 -mart 100 > ../logs/total-Cifar10-CNN_1-fd=512-FedTGP.out 2>&1

@@ -21,9 +21,9 @@ class clientpfedmoe(Client):
         self.global_expert_model = pFMCNN_5().to(self.device)
         self.local_expert_model = eval(args.models[self.id % len(args.models)]).to(self.device)
         self.gate = pfedmoe_gate(m=128).to(self.device)
-        self.head = pfedmoe_head().to(self.device)
+        self.head = pfedmoe_head(output_dim=args.num_classes).to(self.device)
 
-        # 所有模型一起训练
+        # # 所有模型一起训练
         all_params = list(self.global_expert_model.parameters()) + \
                     list(self.local_expert_model.parameters()) + \
                     list(self.gate.parameters()) + \

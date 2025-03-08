@@ -1,0 +1,1 @@
+nohup python -u main.py -t 1 -ab 1 -lr 0.01 -jr 1 -lbs 128 -ls 1 -nc 10 -nb 10 -data Cifar10 -m CNN_1 -fd 512 -did 1 -algo FedTGP -lam 10 -se 100 -mart 100 > ../logs/total-Cifar10-CNN_1-fd=512-FedTGP.out 2>&1

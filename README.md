@@ -19,5 +19,6 @@ python generate_Cifar10.py --noniid True --balance True --partition path --num_c
 ### Run method
 ```bash
 cd system
-./scripts/run_fedproto.sh
+chmod +x scripts/run_compare_method.sh
+./scripts/run_compare_method.sh
 ```

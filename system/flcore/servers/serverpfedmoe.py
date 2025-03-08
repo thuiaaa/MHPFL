@@ -21,7 +21,7 @@ class pFedMoE(Server):
         self.set_slow_clients()
         self.set_clients(clientpfedmoe)
 
-        modellist = {"CNN_1":pFMCNN_1(),"CNN_2":pFMCNN_2(), "CNN_3":pFMCNN_3(), "CNN_4":pFMCNN_4(), "CNN_5":pFMCNN_5()}
+        modellist = {"CNN_1":pFMCNN_1(num_classes=args.num_classes),"CNN_2":pFMCNN_2(num_classes=args.num_classes), "CNN_3":pFMCNN_3(num_classes=args.num_classes), "CNN_4":pFMCNN_4(num_classes=args.num_classes), "CNN_5":pFMCNN_5(num_classes=args.num_classes)}
         self.global_expert_model = modellist[args.global_expert_model]
         print(f"self.global_expert_model is :{self.global_expert_model}")
         for name, param in self.global_expert_model.named_parameters():
