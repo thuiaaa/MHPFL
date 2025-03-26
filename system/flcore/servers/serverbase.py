@@ -180,6 +180,21 @@ class Server(object):
 
         return ids, num_samples, tot_correct, tot_auc
 
+    def test_others_metrics(self):
+        num_samples = []
+        tot_correct = []
+        tot_auc = []
+        for c in self.clients:
+            ct, ns, auc = c.test_others_metrics(self.num_clients)
+            tot_correct.append(ct*1.0)
+            # print(f'Client {c.id}: Acc: {ct*1.0/ns}, AUC: {auc}')
+            tot_auc.append(auc*ns)
+            num_samples.append(ns)
+
+        ids = [c.id for c in self.clients]
+
+        return ids, num_samples, tot_correct, tot_auc
+
     def train_metrics(self):
         num_samples = []
         losses = []
@@ -198,6 +213,7 @@ class Server(object):
         stats = self.test_metrics()
         # stats_train = self.train_metrics()
 
+
         test_acc = sum(stats[2])*1.0 / sum(stats[1])
         test_auc = sum(stats[3])*1.0 / sum(stats[1])
         # train_loss = sum(stats_train[2])*1.0 / sum(stats_train[1])
@@ -208,6 +224,14 @@ class Server(object):
             self.rs_test_acc.append(test_acc)
         else:
             acc.append(test_acc)
+
+        #others_test
+        stats_others = self.test_others_metrics()
+        test_o_acc = sum(stats_others[2])*1.0 / sum(stats_others[1])
+        test_o_auc = sum(stats_others[3])*1.0 / sum(stats_others[1])
+        # train_loss = sum(stats_train[2])*1.0 / sum(stats_train[1])
+        accs_o = [a / n for a, n in zip(stats_others[2], stats_others[1])]
+        aucs_o = [a / n for a, n in zip(stats_others[3], stats_others[1])]
 
         # if loss == None:
         #     self.rs_train_loss.append(train_loss)
@@ -223,6 +247,11 @@ class Server(object):
         # self.print_(test_acc, train_acc, train_loss)
         print("Std Test Accurancy: {:.4f}".format(np.std(accs)))
         print("Std Test AUC: {:.4f}".format(np.std(aucs)))
+        print("-----------------------------------------------------")
+        print("Averaged other Test Accurancy: {:.4f}".format(test_o_acc))
+        print("Averaged other Test AUC: {:.4f}".format(test_o_auc))
+        print("Std other Test Accurancy: {:.4f}".format(np.std(accs_o)))
+        print("Std other Test AUC: {:.4f}".format(np.std(aucs_o)))
 
     def print_(self, test_acc, test_auc, train_loss):
         print("Average Test Accurancy: {:.4f}".format(test_acc))

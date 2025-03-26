@@ -1,0 +1,1 @@
+nohup python -u main.py -t 1 -ab 1 -lr 0.01 -jr 1 -lbs 128 -ls 1 -nc 10 -nb 10 -data Cifar10 -m CNNs -fd 512 -did 0 -algo FedMoEKD -lam 10 > ../logs/total-Cifar10-10client-dir-CNNs-fd=512-FedMoEKD-testothers.log 2>&1 &

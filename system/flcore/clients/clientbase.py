@@ -56,6 +56,12 @@ class Client(object):
         test_data = read_client_data(self.dataset, self.id, is_train=False)
         return DataLoader(test_data, batch_size, drop_last=False, shuffle=False)
 
+    def load_others_test_data(self, num_clients, batch_size=None):
+        if batch_size == None:
+            batch_size = self.batch_size
+        test_data = read_client_data(self.dataset, (self.id + 1)%num_clients, is_train=False)
+        return DataLoader(test_data, batch_size, drop_last=False, shuffle=False)
+
     def clone_model(self, model, target):
         for param, target_param in zip(model.parameters(), target.parameters()):
             target_param.data = param.data.clone()
@@ -104,6 +110,44 @@ class Client(object):
 
         return test_acc, test_num, auc
 
+    def test_others_metrics(self, num_clients):
+        testloaderfull = self.load_others_test_data(num_clients=num_clients)
+        model = load_item(self.role, 'model', self.save_folder_name)
+        # model.to(self.device)
+        model.eval()
+
+        test_acc = 0
+        test_num = 0
+        y_prob = []
+        y_true = []
+
+        with torch.no_grad():
+            for x, y in testloaderfull:
+                if type(x) == type([]):
+                    x[0] = x[0].to(self.device)
+                else:
+                    x = x.to(self.device)
+                y = y.to(self.device)
+                output = model(x)
+
+                test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
+                test_num += y.shape[0]
+
+                y_prob.append(output.detach().cpu().numpy())
+                nc = self.num_classes
+                if self.num_classes == 2:
+                    nc += 1
+                lb = label_binarize(y.detach().cpu().numpy(), classes=np.arange(nc))
+                if self.num_classes == 2:
+                    lb = lb[:, :2]
+                y_true.append(lb)
+
+        y_prob = np.concatenate(y_prob, axis=0)
+        y_true = np.concatenate(y_true, axis=0)
+
+        auc = metrics.roc_auc_score(y_true, y_prob, average='micro')
+
+        return test_acc, test_num, auc
 
     def train_metrics(self):
         trainloader = self.load_train_data()

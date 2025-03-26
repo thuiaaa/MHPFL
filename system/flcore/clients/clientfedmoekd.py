@@ -79,6 +79,46 @@ class clientfedmoekd(Client):
 
         return test_acc, test_num, auc
 
+    def test_others_metrics(self, num_clients):
+        testloaderfull = self.load_others_test_data(num_clients=num_clients)
+        [model.eval() for model in [self.global_expert_model, self.local_expert_model, self.gate, self.head]]
+
+        test_acc = 0
+        test_num = 0
+        y_prob = []
+        y_true = []
+
+        with torch.no_grad():
+            for x, y in testloaderfull:
+                x = x.to(self.device)
+                y = y.to(self.device)
+
+                # 前向传播
+                global_out = self.global_expert_model.forward_nohead(x)
+                local_out = self.local_expert_model.forward_nohead(x)
+                gate_weights = self.gate(x)
+                fused_output = gate_weights[:, 0].unsqueeze(1)*global_out + gate_weights[:, 1].unsqueeze(1)*local_out
+                output = self.head(fused_output)
+
+                # 计算指标
+                test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
+                test_num += y.shape[0]
+                y_prob.append(output.detach().cpu().numpy())
+                y_true.append(y.detach().cpu().numpy())
+
+        # 处理预测结果
+        y_prob = np.concatenate(y_prob, axis=0)
+        y_true = np.concatenate(y_true, axis=0)
+
+        # 计算AUC（修复版本）
+        if self.num_classes == 2:
+            auc = metrics.roc_auc_score(y_true, y_prob[:, 1])
+        else:
+            y_true = label_binarize(y_true, classes=np.arange(self.num_classes))
+            auc = metrics.roc_auc_score(y_true, y_prob, multi_class='ovr', average='macro')
+
+        return test_acc, test_num, auc
+
     # 4.知识蒸馏训练本地专家
     def train(self):
         trainloader = self.load_train_data()
